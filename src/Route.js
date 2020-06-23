@@ -1,3 +1,4 @@
+"use strict";
 ;(function(){
 	module.exports=function(_g){
 
@@ -5,9 +6,6 @@
 
 		var app = _g.app;
 		var translate = _g.translate;
-
-
-		var wordmap={};
 
 		function log(e){
 			console.log(TAG + ' ' + e);
@@ -19,7 +17,8 @@
 			});
 
 			app.get('/translate',function(req,res){
-				const q=req.query.q;
+				const q = req.query.q;
+				const target = translate.getTarget(req.query.target);
 				log('q:' + q);
 				
 				if(q == '' || q== null || q===undefined){
@@ -27,15 +26,16 @@
 					return;
 				}
 				
-				if(wordmap[q]!=undefined && wordmap[q]!=null){
-					log(`${q} => (kor) ${wordmap[q]} | not using google.`);
-					res.send(wordmap[q]);
+				const text = translate.getValueInMap(q, target);
+				if(text != null) {
+					log(`${q} => (${target}) ${text} | not using google.`);
+					res.send(text);
 					return;
 				}
 				
-				translate.getKor(q,(kor)=>{
-					wordmap[q]=kor;
-					res.send(kor);
+				translate.execute(q, target, (translatedText) => {
+					translate.setValueInMap(q, target, translatedText);
+					res.send(translatedText);
 				});
 			});
 

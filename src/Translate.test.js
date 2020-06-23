@@ -1,2 +1,3 @@
 const t = require('./Translate')();
-t.getKor('hi');
+t.execute('hi');
+t.execute('안녕','en');
